@@ -49,7 +49,7 @@ function drawScene(
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     // Variable to define the translation of the object
-    const translation = [240, 150];
+    const translation = [300, 150];
     // Variables for the rotation
     const angleDegrees = 30;
     const angleRadians = angleDegrees * Math.PI / 180.0;
