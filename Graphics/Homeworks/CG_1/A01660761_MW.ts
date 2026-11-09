@@ -20,6 +20,9 @@
  * by the AI at all. The only copies were from the original examples in the 
  * repository, like the shaders and the twgl.js library.
  * 
+ * I also added the necessary area for the .html of this project to the 
+ * main menu.
+ * 
  */
 
 /// <reference types="vite/client" />
