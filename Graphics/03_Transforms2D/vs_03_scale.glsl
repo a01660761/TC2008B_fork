@@ -33,7 +33,6 @@ void main() {
         scaledPosition.y * u_rotation.x + scaledPosition.x * u_rotation.y
     );
 
-
     // Apply translation
     vec2 position = rotatedPosition + u_translation;
 
