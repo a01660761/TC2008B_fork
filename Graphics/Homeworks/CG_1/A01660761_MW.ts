@@ -36,11 +36,12 @@ import fsGLSL from "./fs_vertex_color.glsl?raw";
 import { V2, M3 } from "./2d-lib.js";
 import GUI from "lil-gui";
 
-function createFace(radius: number): twgl.Arrays {
+function createFace(radius: number, skinColor: number[]) {
     const positions: number[] = [];
     const colors: number[] = [];
 
-    const green = [0.50, 0.76, 0.16, 1];
+    // const green = [0.50, 0.76, 0.16, 1];
+    const skinChosen = [...skinColor, 1]; // add the alpha value to the skin color
     const segments = 40; // each slice takes 9 degrees (360 / 40 = 9)
 
     for (let i = 0; i < segments; i++) {
@@ -54,7 +55,7 @@ function createFace(radius: number): twgl.Arrays {
             radius * Math.cos(angleB), radius * Math.sin(angleB)
         ); // triangle vertices
 
-        colors.push(...green, ...green, ...green);
+        colors.push(...skinChosen, ...skinChosen, ...skinChosen);
     }
 
     // define the mouth parameters
@@ -152,7 +153,10 @@ function main(): void {
         throw new Error("Failed to create program info.");
     }
 
-    const faceArrays = createFace(130); // with a radius of 130 pixels
+    const skinSelect = {
+        skin: [0.50, 0.76, 0.16]
+    }; // default skin color (green)
+    const faceArrays = createFace(130, skinSelect.skin); // create the face with the selected skin color
     const faceBuffer = twgl.createBufferInfoFromArrays(gl, faceArrays);
     const faceVAO = twgl.createVAOFromBufferInfo(gl, programInfo, faceBuffer);
     const eyeArrays = createEye(55);
@@ -222,6 +226,7 @@ function main(): void {
         twgl.drawBufferInfo(gl, eyeBuffer, gl.TRIANGLES);
     };
 
+    // add all the controls to the GUI by using the lil-gui library
     const gui = new GUI(); // create a GUI to interact with the face and pivot transformations
     const translationFolder = gui.addFolder("Face translation");
     translationFolder.add(face, "x", 0, canvas.width, 1);
@@ -237,10 +242,25 @@ function main(): void {
     const pivotFolder = gui.addFolder("Eye / pivot");
     pivotFolder.add(pivot, "x", 0, canvas.width, 1);
     pivotFolder.add(pivot, "y", 0, canvas.height, 1);
+    const colorFolder = gui.addFolder("Skin color");
+    colorFolder.addColor(skinSelect, "skin").name("Skin color");
 
-    gui.onChange(drawScene); // redraw the scene whenever a GUI control is changed
+    gui.onChange((event) => {
+        if (event.object === skinSelect) {
+            const updatedFace = createFace(130, skinSelect.skin);
 
-drawScene(); 
+            twgl.setAttribInfoBufferFromArray(
+                gl,
+                faceBuffer.attribs.a_color,
+                new Float32Array(updatedFace.a_color.data),
+                0
+            );
+        } // update the face color when the skin color is changed
+
+        drawScene();
+    });
+
+    drawScene();
 
     console.log("WebGL 2 & shaders ready", programInfo.program);
 }
