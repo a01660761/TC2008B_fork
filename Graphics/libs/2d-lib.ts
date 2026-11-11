@@ -37,10 +37,22 @@ export class V2 {
     // TODO: Add the methods: subtract and scale
     // - subtract: receives two Vec2, and an optional 3rd Vec2.
     //      returns the result of the subtraction inside of the 3rd Vec2
+    static subtract(u: Vec2, v: Vec2, dest?: Vec2): Vec2 {
+        dest = dest || new Float32Array(2);
+        dest[X] = u[X] - v[X];
+        dest[Y] = u[Y] - v[Y];
+        return dest;
+    }
+
     // - scale: receives a Vec2, a number and an optional 3rd Vec2.
     //      returns the multiplication of each element of the vector by the scalar
     //      inside the 3rd Vec2
-
+    static scale(u: Vec2, s: number, dest?: Vec2): Vec2 {
+        dest = dest || new Float32Array(2);
+        dest[X] = u[X] * s;
+        dest[Y] = u[Y] * s;
+        return dest;
+    }
 }
 
 // 3x3 matrices used for 2D transformations
@@ -67,20 +79,23 @@ export class M3 {
     }
 
     static rotation(angleRadians: number): Mat3 {
+        const c = Math.cos(angleRadians);
+        const s = Math.sin(angleRadians);
+
         return [
-            1,  0,  0,
-            0,  1,  0,
-            0,  0,  1,
+            c, s, 0,
+            -s, c, 0,
+            0, 0, 1,
         ];
-    }
+    } // the angle of rotation in radians
 
     static scale(v: Vec2): Mat3 {
         return [
-            1,  0,  0,
-            0,  1,  0,
-            0,  0,  1,
+            v[0], 0, 0,
+            0, v[1], 0,
+            0, 0, 1,
         ];
-    }
+    } // the vector with the scale factors in the X and Y axis
 
     static multiply(a: Mat3, b: Mat3): Mat3 {
         // Get the elements in the matrix
