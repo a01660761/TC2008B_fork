@@ -33,7 +33,7 @@ import * as twgl from "twgl-base.js";
 
 import vsGLSL from "./vs_matrices_vcolor.glsl?raw";
 import fsGLSL from "./fs_vertex_color.glsl?raw";
-import { V2, M3 } from "./2d-lib.js";
+import { V2, M3, type Mat3 } from "./2d-lib.js";
 import GUI from "lil-gui";
 
 function createFace(radius: number, skinColor: number[]) {
@@ -176,6 +176,18 @@ function main(): void {
         y: canvas.height / 2 + 35,
     }; // saves the poition of the center of the eye
 
+    const transformOrders: Record<string, string[]> = {
+        "scl -> rot -> trs": ["scale", "rotation", "translation"],
+        "scl -> trs -> rot": ["scale", "translation", "rotation"],
+        "trs -> scl -> rotation": ["translation", "scale", "rotation"],
+        "rot -> trs -> scl": ["rotation", "translation", "scale"],
+        "rot -> scl -> trs": ["rotation", "scale", "translation"],
+    };
+
+    const orderSettings = {
+        order: "scl -> trs -> rot",
+    }; // default order of transformations
+
     const drawScene = (): void => {
         const angleRadians = face.angle * Math.PI / 180; // turn degrees into radians for the rotation matrix
 
@@ -196,11 +208,28 @@ function main(): void {
             V2.create(pivot.x, pivot.y)
         );
 
-        // create a composite transform matrix for all face forms
-        let faceMatrix = M3.multiply(translateMatrix, scaleMatrix);
-        faceMatrix = M3.multiply(pivotToOrigin, faceMatrix);
-        faceMatrix = M3.multiply(rotateMatrix, faceMatrix);
-        faceMatrix = M3.multiply(originToPivot, faceMatrix);
+        // // transform matrix for all face forms
+        // let faceMatrix = M3.multiply(translateMatrix, scaleMatrix);
+        // faceMatrix = M3.multiply(pivotToOrigin, faceMatrix);
+        // faceMatrix = M3.multiply(rotateMatrix, faceMatrix);
+        // faceMatrix = M3.multiply(originToPivot, faceMatrix);
+
+        const pivotRotationMatrix = M3.multiply(
+            originToPivot,
+            M3.multiply(rotateMatrix, pivotToOrigin)
+        ); // the concentration of the rotation matrices to rotate around the pivot point instead of the origin
+
+        const matrices: Record<string, Mat3> = {
+            scale: scaleMatrix,
+            rotation: pivotRotationMatrix,
+            translation: translateMatrix,
+        };
+
+        let faceMatrix = M3.identity(); // start with the identity matrix and apply transformations in the specified order
+
+        for (const operation of transformOrders[orderSettings.order]) {
+            faceMatrix = M3.multiply(matrices[operation], faceMatrix);
+        } // apply the transformations in the specified order to the face matrix
 
         const eyeMatrix = M3.translation(
             V2.create(pivot.x, pivot.y)
@@ -228,6 +257,7 @@ function main(): void {
 
     // add all the controls to the GUI by using the lil-gui library
     const gui = new GUI(); // create a GUI to interact with the face and pivot transformations
+    gui.add(orderSettings, "order", Object.keys(transformOrders)).name("Order");
     const translationFolder = gui.addFolder("Face translation");
     translationFolder.add(face, "x", 0, canvas.width, 1);
     translationFolder.add(face, "y", 0, canvas.height, 1);
