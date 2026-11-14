@@ -236,20 +236,20 @@ function main(): void {
         ); // the eye is not affected by any transformations, so it only needs to be translated to the pivot position
 
         gl.clearColor(0.04, 0.15, 0.12, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT); // clear the canvas with the specified color
         gl.useProgram(programInfo.program);
 
         twgl.setUniforms(programInfo, {
             u_resolution: [canvas.width, canvas.height],
             u_transforms: faceMatrix,
-        });
+        }); // set our uniforms for the shader programs
 
         gl.bindVertexArray(faceVAO);
         twgl.drawBufferInfo(gl, faceBuffer, gl.TRIANGLES);
 
         twgl.setUniforms(programInfo, {
             u_transforms: eyeMatrix,
-        });
+        }); // set the eye's transformation matrix
 
         gl.bindVertexArray(eyeVAO);
         twgl.drawBufferInfo(gl, eyeBuffer, gl.TRIANGLES);
@@ -269,7 +269,7 @@ function main(): void {
     scaleFolder.add(face, "scaleX", 0.2, 3, 0.01).name("X");
     scaleFolder.add(face, "scaleY", 0.2, 3, 0.01).name("Y");
 
-    const pivotFolder = gui.addFolder("Eye / pivot");
+    const pivotFolder = gui.addFolder("Eye (Pivot)");
     pivotFolder.add(pivot, "x", 0, canvas.width, 1);
     pivotFolder.add(pivot, "y", 0, canvas.height, 1);
     const colorFolder = gui.addFolder("Skin color");
