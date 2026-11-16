@@ -96,18 +96,103 @@ function smiley(radius: number) : twgl.Arrays {
     // using the radius and an angle. Then convert them to polar coordinates.
 
     // Sample data for a single yellow triangle. Replace with your values.
-    positionData.push(0, 100);
-    positionData.push(-120, -100);
-    positionData.push(120, -100);
+    // positionData.push(0, 100);
+    // positionData.push(-120, -100);
+    // positionData.push(120, -100);
+    // colorData.push(0.9, 0.8, 0, 1);
+    // colorData.push(0.9, 0.8, 0, 1);
+    // colorData.push(0.9, 0.8, 0, 1);
+
+    // indexData.push(0, 2, 1);
+
+    const segments = 48;
+
+    // Center of the circle
+    positionData.push(0, 0);
     colorData.push(0.9, 0.8, 0, 1);
-    colorData.push(0.9, 0.8, 0, 1);
-    colorData.push(0.9, 0.8, 0, 1);
 
-    indexData.push(0, 2, 1);
+    // Points around the circumference
+    for (let i = 0; i <= segments; i++) {
+        const angle = i * 2 * Math.PI / segments;
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
 
+        positionData.push(x, y);
+        colorData.push(0.9, 0.8, 0, 1);
+    }
 
+    // Connect the vertices to form triangles
+    for (let i = 1; i <= segments; i++) {
+        indexData.push(0, i, i + 1);
+    }
 
+    // Eyes
+    const eyeRadius = radius * 0.12;
+    const eyeY = radius * 0.25;
+    const eyeSegments = 24;
 
+    for (const eyeX of [-radius * 0.35, radius * 0.35]) {
+        const startIndex = positionData.length / 2;
+
+        // Center of each eye
+        positionData.push(eyeX, eyeY);
+        colorData.push(0, 0, 0, 1);
+
+        // Circumference
+        for (let i = 0; i <= eyeSegments; i++) {
+            const angle = i * 2 * Math.PI / eyeSegments;
+            const x = eyeX + eyeRadius * Math.cos(angle);
+            const y = eyeY + eyeRadius * Math.sin(angle);
+
+            positionData.push(x, y);
+            colorData.push(0, 0, 0, 1);
+        }
+
+        // Triangles
+        for (let i = 1; i <= eyeSegments; i++) {
+            indexData.push(startIndex, startIndex + i, startIndex + i + 1);
+        }
+    }
+
+    // Smile
+    const mouthSegments = 32;
+    const outerRadius = radius * 0.57;
+    const innerRadius = radius * 0.49;
+    const mouthY = radius * 0.13;
+    const startAngle = Math.PI * 1.12;
+    const endAngle = Math.PI * 1.88;
+    const startIndex = positionData.length / 2;
+
+    // Create the vertices of the smile
+    for (let i = 0; i <= mouthSegments; i++) {
+        const angle = startAngle + (endAngle - startAngle) * i / mouthSegments;
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+
+        // Outer edge
+        positionData.push(
+            outerRadius * cos,
+            mouthY + outerRadius * sin
+        );
+
+        // Inner edge
+        positionData.push(
+            innerRadius * cos,
+            mouthY + innerRadius * sin
+        );
+
+        // Black color for both vertices
+        colorData.push(0, 0, 0, 1);
+        colorData.push(0, 0, 0, 1);
+    }
+
+    // Connect vertices with triangles
+    for (let i = 0; i < mouthSegments; i++) {
+        const index = startIndex + i * 2;
+
+        indexData.push(index, index + 2, index + 1);
+        indexData.push(index + 1, index + 2, index + 3);
+    }
 
     // Build the final object with the arrays for positions, colors, and indices
     const arrays: twgl.Arrays = {
