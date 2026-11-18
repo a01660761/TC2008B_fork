@@ -31,19 +31,33 @@ export class V3 {
         return 0;
     }
 
-    static normalize(v: Vec3, dest?: Vec3): Vec3 {
-        dest = dest || new Float32Array(3);
+    static normalize(v: Vec3, dest: Vec3 = new Float32Array(3)): Vec3 {
+        const length = Math.hypot(v[0], v[1], v[2]);
 
+        if (length === 0) {
+            dest.fill(0);
+            return dest;
+        }
+
+        dest[0] = v[0] / length;
+        dest[1] = v[1] / length;
+        dest[2] = v[2] / length;
         return dest;
     }
+
 
     static dot(u: Vec3, v: Vec3): number {
         return 0;
     }
 
-    static cross(u: Vec3, v: Vec3, dest?: Vec3): Vec3 {
-        dest = dest || new Float32Array(3);
+    static cross(u: Vec3, v: Vec3, dest: Vec3 = new Float32Array(3)): Vec3 {
+        const x = u[1] * v[2] - u[2] * v[1];
+        const y = u[2] * v[0] - u[0] * v[2];
+        const z = u[0] * v[1] - u[1] * v[0];
 
+        dest[0] = x;
+        dest[1] = y;
+        dest[2] = z;
         return dest;
     }
 
@@ -55,9 +69,10 @@ export class V3 {
     }
 
     // Subtract two vectors
-    static subtract(u: Vec3, v: Vec3, dest?: Vec3): Vec3 {
-        dest = dest || new Float32Array(3);
-
+    static subtract(u: Vec3, v: Vec3, dest: Vec3 = new Float32Array(3)): Vec3 {
+        dest[0] = u[0] - v[0];
+        dest[1] = u[1] - v[1];
+        dest[2] = u[2] - v[2];
         return dest;
     }
 
