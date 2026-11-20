@@ -165,6 +165,14 @@ class PhongActivityScene extends Scene {
         //
         // twgl.setUniforms(programInfo, { /* ... */ });
 
+        twgl.setUniforms(programInfo, {
+            u_lightPosition: this.lights[0].posArray,
+            u_ambientLight: this.lights[0].ambient,
+            u_diffuseLight: this.lights[0].diffuse,
+            u_specularLight: this.lights[0].specular,
+            u_viewPosition: this.camera.posArray,
+        });
+
         // Check for camera keys and update the camera position
         this.camera.checkKeys();
         const viewProjectionMatrix = this.camera.setupViewProjection(gl);

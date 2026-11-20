@@ -22,12 +22,14 @@ void main() {
     // TODO 1: Send the normal transformed by the object's own
     //         transformations (rotation, scale, ...). The untransformed
     //         normal below is only a placeholder so the page still renders.
-    v_normal = a_normal;  // PLACEHOLDER: replace me
+    v_normal = mat3(u_worldInverseTransform) * a_normal;
 
     // TODO 2: Send the direction pointing from this point of the
     //         surface toward the light.
     // TODO 3: Send the direction pointing from this point of the
     //         surface toward the view (camera).
-    v_surfaceToLight = u_lightWorldPosition;  // PLACEHOLDER: replace me
-    v_surfaceToView = u_viewWorldPosition;    // PLACEHOLDER: replace me
+    vec3 surfaceWorldPosition = (u_world * a_position).xyz;
+
+    v_surfaceToLight = u_lightWorldPosition - surfaceWorldPosition;
+    v_surfaceToView = u_viewWorldPosition - surfaceWorldPosition;
 }
